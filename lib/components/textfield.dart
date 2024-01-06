@@ -14,7 +14,7 @@ class MyTextField extends StatelessWidget {
     return  Padding(
       padding: EdgeInsets.symmetric(horizontal: 30),
       child: SizedBox(
-        height: 60,
+        height: 50,
         child: TextField(
           controller: controller,
           obscureText: obscureText,

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
@@ -9,27 +10,49 @@ import 'home_page.dart';
 
 class OtpScreen extends StatefulWidget {
   String verificationid;
-  final name,organisation,statename,townnmae,userid,phno;
-  OtpScreen({super.key, this.phno, this.userid, this.name, this.organisation, this.statename, this.townnmae,required this.verificationid});
+  final name, organisation, statename, townnmae, userid, phno;
+  OtpScreen(
+      {super.key,
+      this.phno,
+      this.userid,
+      this.name,
+      this.organisation,
+      this.statename,
+      this.townnmae,
+      required this.verificationid});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
 }
 
 class _OtpScreenState extends State<OtpScreen> {
+  Future Addusertofirsebase() async {
+    await FirebaseFirestore.instance.collection('users').add({
+      'userId': widget.userid,
+      'NameAndDesignation': widget.name,
+      'Organisation': widget.organisation,
+      'PhoneNumber': widget.phno,
+      'StateName': widget.organisation,
+      'TownName': widget.townnmae,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-   var otp;
-print(widget.name);
+    var otp;
+    print(widget.name);
     return Scaffold(
       backgroundColor: Color.fromRGBO(66, 66, 66, 1),
-      appBar:const PreferredSize(
-        preferredSize:Size.fromHeight(45) ,
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(45),
         child: appbar(),
       ),
       body: SafeArea(
         child: Column(
-          children: [SizedBox(height: 40,),
+          children: [
+            SizedBox(
+              height: 40,
+            ),
             Center(
               child: Container(
                 child: const Text(
@@ -42,7 +65,9 @@ print(widget.name);
                 ),
               ),
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Center(
               child: Container(
                 child: Text(
@@ -55,42 +80,53 @@ print(widget.name);
                 ),
               ),
             ),
-            SizedBox(height: 35,),
+            SizedBox(
+              height: 35,
+            ),
             Center(
               child: OtpTextField(
-                decoration: InputDecoration(
-                ),
-                styles:[TextStyle(color: Colors.white),
+                decoration: InputDecoration(),
+                styles: [
                   TextStyle(color: Colors.white),
                   TextStyle(color: Colors.white),
                   TextStyle(color: Colors.white),
                   TextStyle(color: Colors.white),
-                  TextStyle(color: Colors.white),] ,
-                focusedBorderColor:Colors.black,
-                enabledBorderColor:Color(0xFF222222),
+                  TextStyle(color: Colors.white),
+                  TextStyle(color: Colors.white),
+                ],
+                focusedBorderColor: Colors.black,
+                enabledBorderColor: Color(0xFF222222),
                 numberOfFields: 6,
-                cursorColor:Colors.white ,
+                cursorColor: Colors.white,
                 showFieldAsBox: true,
-                onSubmit: (code){otp=code;},
+                onSubmit: (code) {
+                  otp = code;
+                },
               ),
             ),
-            SizedBox(height: 40,),
+            SizedBox(
+              height: 40,
+            ),
             MyButton(
-                onTap: ()async{
-                  try{
-                    PhoneAuthCredential credential = await PhoneAuthProvider.credential(verificationId: widget.verificationid, smsCode: otp.toString());
-                    FirebaseAuth.instance.signInWithCredential(credential).then((value){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+                onTap: () async {
+                  try {
+                    PhoneAuthCredential credential =
+                        await PhoneAuthProvider.credential(
+                            verificationId: widget.verificationid,
+                            smsCode: otp.toString());
+                    FirebaseAuth.instance
+                        .signInWithCredential(credential)
+                        .then((value) {
+                          Addusertofirsebase();
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => LoginPage()));
                     });
-
-                  }
-                      catch(ex){}
+                  } catch (ex) {}
                 },
                 text: "Verify")
           ],
         ),
       ),
-
     );
   }
 }
