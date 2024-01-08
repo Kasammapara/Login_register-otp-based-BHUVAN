@@ -19,7 +19,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  var isUserExists = true;
+  var isUserExists ;
 
   var phno;
 
