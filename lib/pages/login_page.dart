@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sif/components/button.dart';
 import 'package:sif/components/label.dart';
 import 'package:sif/components/textfield.dart';
+import 'package:sif/pages/admin/admin_page.dart';
 import 'package:sif/pages/register_page.dart';
 
 import '../components/appbar.dart';
@@ -12,6 +13,7 @@ class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
   void onsignin(){
+
 
   }
   @override
@@ -48,6 +50,7 @@ class LoginPage extends StatelessWidget {
                   MyTextField(
                     controller: userIdController
                       ,hintText: 'Enter User ID',
+                      keyboardType: TextInputType.number,
                       obscureText: false),
                   SizedBox(height: 20,),
                   Mylabel(label_text: "Password"),
@@ -58,7 +61,15 @@ class LoginPage extends StatelessWidget {
                       obscureText: true),
                   SizedBox(height: 50,),
                   MyButton(
-                    onTap: onsignin
+                    onTap: (){
+                      print(userIdController.text);
+                      print(PasswordController.text);
+                      if(userIdController.text=="755" && PasswordController.text=="123" ){
+                        Navigator.pushAndRemoveUntil(context , MaterialPageRoute(builder: (context)=> AdminPage()), (route) => false);
+                      }
+                      else{}
+
+                    }
                       ,text: "Login"),
                   GestureDetector(
                     onTap: (){Navigator.push(

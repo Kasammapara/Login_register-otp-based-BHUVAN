@@ -118,8 +118,8 @@ class _OtpScreenState extends State<OtpScreen> {
                         .signInWithCredential(credential)
                         .then((value) {
                           Addusertofirsebase();
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => LoginPage()));
+                      Navigator.pushAndRemoveUntil(context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),(route)=> false);
                     });
                   } catch (ex) {}
                 },

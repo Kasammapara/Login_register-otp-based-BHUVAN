@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sif/pages/admin/admin_page.dart';
 import 'package:sif/pages/home_page.dart';
 import 'package:sif/pages/login_page.dart';
 import 'package:sif/pages/otp_page.dart';
@@ -34,6 +35,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_)=> AuthProvider()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
        home: RegisterPage(),
 
       ),
