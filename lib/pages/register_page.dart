@@ -19,34 +19,64 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool isUserExists = false;
+  bool? isUserExists;
 
   var phno;
+  var isLoading = false;
 
   Future<void> checkAndStoreUserId() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(child: CircularProgressIndicator());
+        });
     try {
       // Reference to the Firestore collection
       CollectionReference users =
           FirebaseFirestore.instance.collection('users');
 
       // Query to check if the user ID exists
-      QuerySnapshot querySnapshot = await users
-          .where('PhoneNumber', isEqualTo: mbnumberController.text)
-          .get();
-      print(querySnapshot.docs);
+      QuerySnapshot querySnapshot =
+          await users.where('PhoneNumber', isEqualTo: phno).get();
+      print(querySnapshot.docs.isNotEmpty);
+      print(phno);
       if (querySnapshot.docs.isNotEmpty) {
-        setState(() {
-          isUserExists = true;
-        });
+        isUserExists = true;
+        Navigator.of(context).pop();
       } else {
         // User does not exist, so add a new documen
+        isUserExists = false;
+      }
+      if (isUserExists == false) {
+        await FirebaseAuth.instance.verifyPhoneNumber(
+          verificationCompleted: (PhoneAuthCredential credential) {},
+          verificationFailed: (FirebaseAuthException ex) {},
+          codeSent: (String verificationid, int? resendtoken) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => OtpScreen(
+                        phno: phno,
+                        userid: useridController.value.text,
+                        name: namedisController.value.text,
+                        organisation: organisationController.value.text,
+                        statename: statenameController.value.text,
+                        townnmae: townnameController.value.text,
+                        verificationid: verificationid,
+                      )),
+            );
+          },
+          codeAutoRetrievalTimeout: (String verificationid) {},
+          phoneNumber: phno,
+        );
 
-        setState(() {
-          isUserExists = false;
-        });
+      } else {
+
+        Userexist();
       }
     } catch (e) {
       print('Error checking and storing user ID: $e');
+      Navigator.of(context).pop();
     }
   }
 
@@ -69,6 +99,17 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       },
     );
+    setState(() {
+      isLoading = false; // Reset loading state
+    });
+  }
+
+  void loader() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(child: CircularProgressIndicator());
+        });
   }
 
   void Userexist() {
@@ -83,6 +124,9 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       },
     );
+    setState(() {
+      isLoading = false; // Reset loading state
+    });
   }
 
   void correctmobilenumber() {
@@ -97,6 +141,9 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       },
     );
+    setState(() {
+      isLoading = false; // Reset loading state
+    });
   }
 
   @override
@@ -239,7 +286,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 MyButton(
                   onTap: () async {
                     _formKey.currentState?.save();
-                    print(phno);
+
+                    setState(() {
+                      isLoading = true; // Set loading state before operations
+                    });
                     // checkUserIdExistence(useridController.text.toString());
                     final userid = useridController.text;
                     final name = namedisController.text;
@@ -249,47 +299,36 @@ class _RegisterPageState extends State<RegisterPage> {
                     final townname = townnameController.text;
                     if (mobilenumber != null && mobilenumber.length != 10) {
                       correctmobilenumber();
-                    } else if (userid != "" &&
+                    } else if (userid.isNotEmpty &&
                         name.isNotEmpty &&
                         mobilenumber.isNotEmpty &&
                         organisation.isNotEmpty &&
                         statename.isNotEmpty &&
                         townname.isNotEmpty) {
-                      checkAndStoreUserId();
-                      if (isUserExists == false) {
-                        await FirebaseAuth.instance.verifyPhoneNumber(
-                          verificationCompleted:
-                              (PhoneAuthCredential credential) {},
-                          verificationFailed: (FirebaseAuthException ex) {},
-                          codeSent: (String verificationid, int? resendtoken) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OtpScreen(
-                                        phno: phno,
-                                        userid: useridController.value.text,
-                                        name: namedisController.value.text,
-                                        organisation:
-                                            organisationController.value.text,
-                                        statename:
-                                            statenameController.value.text,
-                                        townnmae: townnameController.value.text,
-                                        verificationid: verificationid,
-                                      )),
-                            );
-                          },
-                          codeAutoRetrievalTimeout: (String verificationid) {},
-                          phoneNumber: phno,
-                        );
-                      } else {
-                        print("object");
-                        Userexist();
+                      try {
+                        // Perform all tasks within this try block
+                        await checkAndStoreUserId();
+                      } catch (e) {
+                        setState(() {
+                          isLoading = false; // Reset loading state
+                        });
+
+                        print('Error: $e'); // Handle errors appropriately
+                        // Display error message to the user
+                        // ...
                       }
                     } else {
                       displaynull();
                     }
                   },
-                  text: "Register",
+                  text: isLoading ? 'Loading...' : 'Register',
+                ),
+                Visibility(
+                  visible: isLoading,
+                  child: Center(
+                    child:
+                        CircularProgressIndicator(), // Already centered within Column
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
