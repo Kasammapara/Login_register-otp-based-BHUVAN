@@ -26,6 +26,8 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
+  var approved ="null";
+
   Future Addusertofirsebase() async {
     await FirebaseFirestore.instance.collection('users').add({
       'userId': widget.userid,
@@ -34,6 +36,8 @@ class _OtpScreenState extends State<OtpScreen> {
       'PhoneNumber': widget.phno,
       'StateName': widget.organisation,
       'TownName': widget.townnmae,
+      'approved':approved,
+      'timestamp':DateTime.now(),
     });
   }
 
@@ -71,7 +75,7 @@ class _OtpScreenState extends State<OtpScreen> {
             Center(
               child: Container(
                 child: Text(
-                  "Please Enter the verification code sent \n to +91 ${widget.phno} ",
+                  "Please Enter the verification code sent \n to  ${widget.phno} ",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,

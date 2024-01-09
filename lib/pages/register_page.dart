@@ -19,17 +19,20 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  var isUserExists ;
+  bool isUserExists = false;
 
   var phno;
 
   Future<void> checkAndStoreUserId() async {
     try {
       // Reference to the Firestore collection
-      CollectionReference users = FirebaseFirestore.instance.collection('users');
+      CollectionReference users =
+          FirebaseFirestore.instance.collection('users');
 
       // Query to check if the user ID exists
-      QuerySnapshot querySnapshot = await users.where('PhoneNumber', isEqualTo: mbnumberController.text).get();
+      QuerySnapshot querySnapshot = await users
+          .where('PhoneNumber', isEqualTo: mbnumberController.text)
+          .get();
       print(querySnapshot.docs);
       if (querySnapshot.docs.isNotEmpty) {
         setState(() {
@@ -41,14 +44,11 @@ class _RegisterPageState extends State<RegisterPage> {
         setState(() {
           isUserExists = false;
         });
-     }
+      }
     } catch (e) {
       print('Error checking and storing user ID: $e');
     }
   }
-
-
-
 
   final useridController = TextEditingController();
   final namedisController = TextEditingController();
@@ -70,6 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
       },
     );
   }
+
   void Userexist() {
     showDialog(
       context: context,
@@ -100,7 +101,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Color.fromRGBO(66, 66, 66, 1),
       appBar: const PreferredSize(
@@ -157,49 +157,48 @@ class _RegisterPageState extends State<RegisterPage> {
                 SizedBox(
                   height: 5,
                 ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
-              child: SizedBox(
-                height: 70,
-                child: IntlPhoneField(
-                  dropdownTextStyle: TextStyle(
-                      color: Colors.white,),
-                  initialCountryCode: 'IN',
-                  onSaved: (phone) {
-                    setState(() {
-                      phno = phone?.completeNumber;
-                    });
-                    // The phone parameter contains the complete phone number.
-
-                  },
-                  disableLengthCheck : false,
-                  controller: mbnumberController,
-                  obscureText: false,
-                  keyboardType:TextInputType.number ,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.0),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: SizedBox(
+                    height: 70,
+                    child: IntlPhoneField(
+                      dropdownTextStyle: TextStyle(
+                        color: Colors.white,
                       ),
-                      fillColor:const Color.fromRGBO(34, 34, 34, 1),
-                      filled: true,
-                      hintText: "Enter Your Mobile Number",
-                      hintStyle: TextStyle(
-                          color: Colors.grey),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue),
-                        borderRadius: BorderRadius.circular(15.0),
-                      )
+                      initialCountryCode: 'IN',
+                      onSaved: (phone) {
+                        setState(() {
+                          phno = phone?.completeNumber;
+                        });
+                        // The phone parameter contains the complete phone number.
+                      },
+                      disableLengthCheck: false,
+                      controller: mbnumberController,
+                      obscureText: false,
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(10.0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          fillColor: const Color.fromRGBO(34, 34, 34, 1),
+                          filled: true,
+                          hintText: "Enter Your Mobile Number",
+                          hintStyle: TextStyle(color: Colors.grey),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                            borderRadius: BorderRadius.circular(15.0),
+                          )),
+                    ),
                   ),
                 ),
-              ),
-            ),
-                SizedBox(height: 0,
+                SizedBox(
+                  height: 0,
                 ),
                 Mylabel(label_text: "Your Organisation"),
                 SizedBox(
@@ -241,54 +240,52 @@ class _RegisterPageState extends State<RegisterPage> {
                   onTap: () async {
                     _formKey.currentState?.save();
                     print(phno);
-                   // checkUserIdExistence(useridController.text.toString());
+                    // checkUserIdExistence(useridController.text.toString());
                     final userid = useridController.text;
                     final name = namedisController.text;
                     final mobilenumber = mbnumberController.text;
                     final organisation = organisationController.text;
                     final statename = statenameController.text;
                     final townname = townnameController.text;
-                    if (mobilenumber != null &&
-                    mobilenumber.length != 10) {
-                    correctmobilenumber();
-                    }else
-                    if (userid != "" &&
+                    if (mobilenumber != null && mobilenumber.length != 10) {
+                      correctmobilenumber();
+                    } else if (userid != "" &&
                         name.isNotEmpty &&
                         mobilenumber.isNotEmpty &&
                         organisation.isNotEmpty &&
                         statename.isNotEmpty &&
                         townname.isNotEmpty) {
                       checkAndStoreUserId();
-                      if(isUserExists==false){
-                       await FirebaseAuth.instance.verifyPhoneNumber(
-                       verificationCompleted:
-                       (PhoneAuthCredential credential) {},
-                    verificationFailed: (FirebaseAuthException ex) {},
-                    codeSent: (String verificationid, int? resendtoken) {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                    builder: (context) => OtpScreen(
-                    phno: phno,
-                    userid: useridController.value.text,
-                    name: namedisController.value.text,
-                    organisation:
-                    organisationController.value.text,
-                    statename: statenameController.value.text,
-                    townnmae: townnameController.value.text,
-                    verificationid: verificationid,
-                    )),
-                    );
-                    },
-                    codeAutoRetrievalTimeout: (String verificationid) {},
-                    phoneNumber: phno,
-                    );
-                    }
-                    else{
-                     print("object");
-                     Userexist();
-                    }}
-                     else {
+                      if (isUserExists == false) {
+                        await FirebaseAuth.instance.verifyPhoneNumber(
+                          verificationCompleted:
+                              (PhoneAuthCredential credential) {},
+                          verificationFailed: (FirebaseAuthException ex) {},
+                          codeSent: (String verificationid, int? resendtoken) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => OtpScreen(
+                                        phno: phno,
+                                        userid: useridController.value.text,
+                                        name: namedisController.value.text,
+                                        organisation:
+                                            organisationController.value.text,
+                                        statename:
+                                            statenameController.value.text,
+                                        townnmae: townnameController.value.text,
+                                        verificationid: verificationid,
+                                      )),
+                            );
+                          },
+                          codeAutoRetrievalTimeout: (String verificationid) {},
+                          phoneNumber: phno,
+                        );
+                      } else {
+                        print("object");
+                        Userexist();
+                      }
+                    } else {
                       displaynull();
                     }
                   },
